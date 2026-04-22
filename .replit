@@ -1,0 +1,39 @@
+modules = ["dotnet-7.0", "dotnet-8.0"]
+[agent]
+expertMode = true
+
+[nix]
+channel = "stable-25_05"
+
+[workflows]
+runButton = "Project"
+
+[[workflows.workflow]]
+name = "Project"
+mode = "parallel"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Start application"
+
+[[workflows.workflow]]
+name = "Start application"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd PracticeProject_Dotnet/PracticeProject_Dotnet && ASPNETCORE_URLS=http://0.0.0.0:5000 dotnet run --no-launch-profile"
+waitForPort = 5000
+
+[workflows.workflow.metadata]
+outputType = "webview"
+
+[[ports]]
+localPort = 5000
+externalPort = 80
+
+[deployment]
+deploymentTarget = "autoscale"
+run = ["bash", "-c", "ASPNETCORE_URLS=http://0.0.0.0:5000 dotnet /tmp/publish/PracticeProject_Dotnet.dll"]
+build = ["bash", "-c", "cd PracticeProject_Dotnet/PracticeProject_Dotnet && dotnet publish -c Release -o /tmp/publish"]
